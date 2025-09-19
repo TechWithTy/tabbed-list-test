@@ -1,7 +1,8 @@
 /**
  * Data services for fetching properties and lists. These are UI-agnostic.
  */
-import type { FilterSpec, Pagination, SortSpec } from "../schemas/types";
+import type { FilterSpec, Pagination, SortSpec, PropertySummary } from "../schemas/types";
+import { toPropertySummary } from "./adapters";
 import { DEFAULT_PAGE_SIZE } from "./constants";
 
 export interface FetchParams {
@@ -22,7 +23,7 @@ export interface PagedResult<T> {
  */
 export async function fetchProperties(
 	params: FetchParams = {},
-): Promise<PagedResult<any>> {
+): Promise<PagedResult<PropertySummary>> {
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 	const page = params.page ?? 0;
 	const pageSize = params.pageSize ?? DEFAULT_PAGE_SIZE;
@@ -49,14 +50,25 @@ export async function fetchProperties(
 		// cache/revalidate can be managed at callsite if needed
 	});
 	if (!res.ok) throw new Error(`Failed to fetch properties: ${res.statusText}`);
-	const json = await res.json();
+	const json: unknown = await res.json();
+
+	// Narrow the API payload shape at runtime
+	const hasItems = (v: unknown): v is { items: unknown[]; total?: number } => {
+		if (typeof v !== "object" || v === null) return false;
+		const obj = v as Record<string, unknown>;
+		return Array.isArray(obj.items);
+	};
+	const isArray = (v: unknown): v is unknown[] => Array.isArray(v);
+
+	const itemsUnknown = hasItems(json) ? json.items : isArray(json) ? json : [];
+	const totalUnknown = hasItems(json) && typeof json.total === "number" ? json.total : itemsUnknown.length;
 
 	return {
-		items: Array.isArray(json.items) ? json.items : json,
+		items: (itemsUnknown as unknown[]).map((it) => toPropertySummary(it)),
 		pagination: {
 			page,
 			pageSize,
-			total: Number(json.total ?? json.length ?? 0),
+			total: totalUnknown,
 		},
 	};
 }

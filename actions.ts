@@ -42,8 +42,9 @@ export async function loadProperties(opts?: {
 		const mapped = items.map(toPropertySummary);
 		s.setItems(mapped);
 		s.setPagination({ ...pagination, total: pagination.total });
-	} catch (e: any) {
-		s.setError(e?.message ?? "Failed to load properties");
+	} catch (e: unknown) {
+		const errorMessage = e instanceof Error ? e.message : "Failed to load properties";
+		s.setError(errorMessage);
 	} finally {
 		s.setLoading(false);
 	}
@@ -54,6 +55,6 @@ export async function loadProperties(opts?: {
  */
 export function openDrawerById(id: string) {
 	const s = useTabbedListStore.getState();
-	const item = s.items.find((i) => (i as any).id === id) || null;
-	if (item) s.openDrawer(item as any);
+	const item = s.items.find((i) => i.id === id) || null;
+	if (item) s.openDrawer(item);
 }

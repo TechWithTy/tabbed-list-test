@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { PropertySummary } from "./types";
+import type { PropertySummary } from "./types";
 
 export const PropertySummarySchema = z.object({
 	id: z.string(),

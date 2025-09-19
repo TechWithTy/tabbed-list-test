@@ -4,10 +4,48 @@
 import type { PropertySummary } from "./types";
 import { PropertySummarySchema } from "./schemas";
 
+interface RawPropertyInput {
+	id?: string | number;
+	propertyId?: string | number;
+	_id?: string | number;
+	addressLine?: string;
+	address?: {
+		fullStreetLine?: string;
+		street?: string;
+		city?: string;
+		state?: string;
+		zipCode?: string;
+	};
+	city?: string;
+	state?: string;
+	zip?: string;
+	price?: number;
+	metadata?: {
+		listPrice?: number;
+		listDate?: string;
+	};
+	details?: {
+		beds?: number;
+		fullBaths?: number;
+		sqft?: number;
+		lotSqft?: number;
+	};
+	beds?: number;
+	baths?: number;
+	sqft?: number;
+	lotSqft?: number;
+	media?: {
+		images?: Array<{ url?: string }>;
+	};
+	primary_photo?: string;
+	badges?: unknown;
+	aiScore?: number;
+	createdAt?: string;
+}
 /**
  * Map any backend property object to PropertySummary. Extend as needed.
  */
-export function toPropertySummary(input: any): PropertySummary {
+export function toPropertySummary(input: RawPropertyInput): PropertySummary {
 	const candidate = {
 		id: String(input.id ?? input.propertyId ?? input._id),
 		addressLine:

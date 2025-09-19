@@ -5,8 +5,14 @@ import { useEffect } from "react";
 import { useShallow } from "zustand/react/shallow";
 import { loadProperties } from "../state/actions";
 import { useTabbedListStore } from "../state/store";
+import type {
+  FilterSpec,
+  SortSpec,
+  TabKey,
+  PropertySummary,
+} from "../schemas/types";
 
-export function useTabbedList(autoLoad: boolean = true) {
+export function useTabbedList(autoLoad = true) {
 	const state = useTabbedListStore(
 		useShallow((s) => ({
 			items: s.items,
@@ -33,14 +39,14 @@ export function useTabbedList(autoLoad: boolean = true) {
 			reload: () => loadProperties(),
 			setPage: (page: number) => loadProperties({ page }),
 			setPageSize: (pageSize: number) => loadProperties({ pageSize }),
-			setSort: (sort: any) => loadProperties({ sort }),
-			setFilters: (filters: any) => loadProperties({ filters }),
+			setSort: (sort: SortSpec | null) => loadProperties({ sort }),
+			setFilters: (filters: Partial<FilterSpec>) => loadProperties({ filters }),
 			toggleSelect: (id: string) =>
 				useTabbedListStore.getState().toggleSelect(id),
 			clearSelection: () => useTabbedListStore.getState().clearSelection(),
-			setActiveTab: (tab: any) =>
+			setActiveTab: (tab: TabKey) =>
 				useTabbedListStore.getState().setActiveTab(tab),
-			openDrawer: (item: any) => useTabbedListStore.getState().openDrawer(item),
+			openDrawer: (item: PropertySummary) => useTabbedListStore.getState().openDrawer(item),
 			closeDrawer: () => useTabbedListStore.getState().closeDrawer(),
 		},
 	};

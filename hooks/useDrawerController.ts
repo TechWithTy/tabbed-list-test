@@ -1,7 +1,8 @@
 /**
  * useDrawerController: minimal hook for opening/closing drawer from UI components.
  */
-import { useTabbedListStore } from "../store";
+import { useTabbedListStore } from "../state/store";
+import type { PropertySummary } from "../schemas/types";
 
 export function useDrawerController() {
 	const open = useTabbedListStore((s) => s.drawer.open);
@@ -10,7 +11,7 @@ export function useDrawerController() {
 	return {
 		open,
 		item,
-		openWith: (it: any) => useTabbedListStore.getState().openDrawer(it),
+		openWith: (it: PropertySummary) => useTabbedListStore.getState().openDrawer(it),
 		close: () => useTabbedListStore.getState().closeDrawer(),
 	};
 }

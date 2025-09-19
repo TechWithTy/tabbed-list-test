@@ -1,8 +1,10 @@
 /**
  * Data services for fetching properties and lists. These are UI-agnostic.
  */
-import type { FilterSpec, Pagination, SortSpec } from "./types";
+import type { FilterSpec, Pagination, SortSpec, PropertySummary } from "./types";
 import { DEFAULT_PAGE_SIZE } from "./constants";
+import { z } from "zod";
+import { PropertySummarySchema } from "./schemas";
 
 export interface FetchParams {
 	page?: number;
@@ -22,7 +24,7 @@ export interface PagedResult<T> {
  */
 export async function fetchProperties(
 	params: FetchParams = {},
-): Promise<PagedResult<any>> {
+): Promise<PagedResult<PropertySummary>> {
 	const baseUrl = process.env.NEXT_PUBLIC_API_URL ?? "/api";
 	const page = params.page ?? 0;
 	const pageSize = params.pageSize ?? DEFAULT_PAGE_SIZE;
@@ -49,14 +51,24 @@ export async function fetchProperties(
 		// cache/revalidate can be managed at callsite if needed
 	});
 	if (!res.ok) throw new Error(`Failed to fetch properties: ${res.statusText}`);
-	const json = await res.json();
+	const raw = (await res.json()) as unknown;
+
+	// Response can be either an array of items, or an object with items/total
+	const ResponseSchema = z.union([
+		z.object({ items: z.array(PropertySummarySchema), total: z.number().optional() }),
+		z.array(PropertySummarySchema),
+	]);
+
+	const parsed = ResponseSchema.parse(raw);
+	const items: PropertySummary[] = Array.isArray(parsed) ? parsed : parsed.items;
+	const total = Array.isArray(parsed) ? parsed.length : parsed.total ?? parsed.items.length;
 
 	return {
-		items: Array.isArray(json.items) ? json.items : json,
+		items,
 		pagination: {
 			page,
 			pageSize,
-			total: Number(json.total ?? json.length ?? 0),
+			total: Number(total),
 		},
 	};
 }

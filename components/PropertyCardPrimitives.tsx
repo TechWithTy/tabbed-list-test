@@ -1,18 +1,20 @@
-import { PropertySummary } from "../schemas/types";
+import type { PropertySummary } from "../schemas/types";
 
 // Primitive components for building property cards
 export function PropertyImage({ imageUrl }: { imageUrl?: string }) {
 	return (
-		<div className="relative aspect-video rounded-t-lg overflow-hidden bg-muted">
+		<div className="relative aspect-video overflow-hidden rounded-t-lg bg-muted">
 			{imageUrl ? (
 				<img
 					src={imageUrl}
 					alt="Property"
-					className="w-full h-full object-cover"
-					onError={(e) => (e.currentTarget.style.display = "none")}
+					className="h-full w-full object-cover"
+					onError={(e) => {
+						e.currentTarget.style.display = "none";
+					}}
 				/>
 			) : (
-				<div className="bg-muted border-border w-full h-full flex items-center justify-center">
+				<div className="flex h-full w-full items-center justify-center border-border bg-muted">
 					<span className="text-muted-foreground text-sm">No image</span>
 				</div>
 			)}
@@ -23,10 +25,10 @@ export function PropertyImage({ imageUrl }: { imageUrl?: string }) {
 export function PropertyAddress({ property }: { property: PropertySummary }) {
 	return (
 		<div>
-			<h3 className="font-medium text-foreground truncate">
+			<h3 className="truncate font-medium text-foreground">
 				{property.addressLine}
 			</h3>
-			<p className="text-sm text-muted-foreground truncate">
+			<p className="truncate text-muted-foreground text-sm">
 				{property.city}, {property.state} {property.zip}
 			</p>
 		</div>
@@ -44,7 +46,7 @@ export function PropertyPrice({ price }: { price?: number }) {
 
 export function PropertyDetails({ property }: { property: PropertySummary }) {
 	return (
-		<div className="flex gap-4 text-sm text-muted-foreground">
+		<div className="flex gap-4 text-muted-foreground text-sm">
 			{property.beds && <span>{property.beds} bd</span>}
 			{property.baths && <span>{property.baths} ba</span>}
 			{property.sqft && <span>{property.sqft.toLocaleString()} sqft</span>}
@@ -55,11 +57,11 @@ export function PropertyDetails({ property }: { property: PropertySummary }) {
 export function PropertyBadges({ badges }: { badges?: string[] }) {
 	if (!badges?.length) return null;
 	return (
-		<div className="flex flex-wrap gap-1 mt-2">
+		<div className="mt-2 flex flex-wrap gap-1">
 			{badges.map((badge) => (
 				<span
 					key={badge}
-					className="px-2 py-1 text-xs rounded-full bg-accent text-accent-foreground border border-border"
+					className="rounded-full border border-border bg-accent px-2 py-1 text-accent-foreground text-xs"
 				>
 					{badge}
 				</span>
@@ -82,12 +84,13 @@ export function PropertySelectionButton({
 
 	return (
 		<button
+			type="button"
 			onClick={onToggle}
 			className={cn(
-				"w-5 h-5 rounded-full border flex items-center justify-center transition-colors",
+				"flex h-5 w-5 items-center justify-center rounded-full border transition-colors",
 				isSelected
-					? "bg-primary border-primary"
-					: "bg-background border-border",
+					? "border-primary bg-primary"
+					: "border-border bg-background",
 			)}
 		>
 			{isSelected && (
@@ -95,7 +98,9 @@ export function PropertySelectionButton({
 					xmlns="http://www.w3.org/2000"
 					viewBox="0 0 24 24"
 					fill="currentColor"
-					className="w-3 h-3 text-primary-foreground"
+					className="h-3 w-3 text-primary-foreground"
+					aria-hidden="true"
+					focusable="false"
 				>
 					<path
 						fillRule="evenodd"

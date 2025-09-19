@@ -13,8 +13,8 @@ export function formatAddress(
 
 export function toCurrency(
 	n?: number,
-	locale: string = "en-US",
-	currency: string = "USD",
+	locale = "en-US",
+	currency = "USD",
 ): string {
 	if (typeof n !== "number") return "—";
 	try {
@@ -29,8 +29,8 @@ export function toCurrency(
 }
 
 export function safeNumber(val: unknown, fallback = 0): number {
-	const n = typeof val === "string" ? Number(val) : (val as number);
-	return Number.isFinite(n) ? (n as number) : fallback;
+	const n = typeof val === "string" ? Number(val) : Number(val);
+	return Number.isFinite(n) ? n : fallback;
 }
 
 export const isServer = typeof window === "undefined";
